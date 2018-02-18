@@ -42,6 +42,9 @@ IPAddress _subnetIp(MY_IP_SUBNET_ADDRESS);
 IPAddress _subnetIp(255, 255, 255, 0);
 #endif /* End of MY_IP_SUBNET_ADDRESS */
 #endif /* End of MY_IP_ADDRESS */
+#if defined(MY_DNS_ADDRESS)
+IPAddress _DNSServerIp(MY_DNS_ADDRESS);
+#endif
 
 #if defined(MY_GATEWAY_ESP8266)  || defined(MY_GATEWAY_ESP32)
 #define EthernetClient WiFiClient
@@ -127,6 +130,7 @@ bool gatewayTransportConnect(void)
 		GATEWAY_DEBUG(PSTR("GWT:TPC:CONNECTING...\n"));
 	}
 	GATEWAY_DEBUG(PSTR("GWT:TPC:IP=%s\n"),WiFi.localIP().toString().c_str());
+	GATEWAY_DEBUG(PSTR("GWT:TPC:DNS=%s\n"),WiFi.dnsIP().toString().c_str());
 #elif defined(MY_GATEWAY_LINUX) /* Elif part of MY_GATEWAY_ESP8266 */
 #if defined(MY_IP_ADDRESS)
 	_MQTT_ethClient.bind(_MQTT_clientIp);
@@ -135,7 +139,11 @@ bool gatewayTransportConnect(void)
 	GATEWAY_DEBUG(PSTR("GWT:TPC:IP=%s\n"), modem.getLocalIP().c_str());
 #else /* Else part of MY_GATEWAY_ESP8266 */
 #if defined(MY_IP_ADDRESS)
+#if defined(MY_DNS_ADDRESS)
+	Ethernet.begin(_MQTT_clientMAC, _MQTT_clientIp, _DNSServerIp)
+#else
 	Ethernet.begin(_MQTT_clientMAC, _MQTT_clientIp);
+#endif /* End of MY_DNS_ADDRESS */
 #else /* Else part of MY_IP_ADDRESS */
 	// Get IP address from DHCP
 	if (!Ethernet.begin(_MQTT_clientMAC)) {
@@ -147,6 +155,9 @@ bool gatewayTransportConnect(void)
 	GATEWAY_DEBUG(PSTR("GWT:TPC:IP=%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8 "\n"),
 	              Ethernet.localIP()[0],
 	              Ethernet.localIP()[1], Ethernet.localIP()[2], Ethernet.localIP()[3]);
+	GATEWAY_DEBUG(PSTR("GWT:TPC:DNS=%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8 "\n"),
+	              Ethernet.dnsServerIP()[0],
+	              Ethernet.dnsServerIP()[1], Ethernet.dnsServerIP()[2], Ethernet.dnsServerIP()[3]);
 	// give the Ethernet interface a second to initialize
 	delay(1000);
 #endif /* End of MY_GATEWAY_ESP8266 */
@@ -211,7 +222,11 @@ bool gatewayTransportInit(void)
 	WiFi.hostname(MY_ESP8266_HOSTNAME);
 #endif /* End of MY_ESP8266_HOSTNAME */
 #if defined(MY_IP_ADDRESS)
+#if defined(MY_DNS_ADDRESS)
+	WiFi.config(_MQTT_clientIp, _gatewayIp, _subnetIp, _DNSServerIp);
+#else
 	WiFi.config(_MQTT_clientIp, _gatewayIp, _subnetIp);
+#endif /* End of MY_DNS_ADDRESS */
 #endif /* End of MY_IP_ADDRESS */
 #ifndef MY_ESP8266_BSSID
 #define MY_ESP8266_BSSID NULL

@@ -41,6 +41,9 @@ IPAddress _subnetIp(MY_IP_SUBNET_ADDRESS);
 IPAddress _subnetIp(255, 255, 255, 0);
 #endif /* End of MY_IP_SUBNET_ADDRESS */
 #endif /* End of MY_IP_ADDRESS */
+#if defined(MY_DNS_ADDRESS)
+IPAddress _DNSServerIp(MY_DNS_ADDRESS);
+#endif
 
 uint8_t _ethernetGatewayMAC[] = { MY_MAC_ADDRESS };
 uint16_t _ethernetGatewayPort = MY_PORT;
@@ -124,7 +127,12 @@ bool gatewayTransportInit(void)
 	WiFi.hostname(MY_ESP8266_HOSTNAME);
 #endif /* End of MY_ESP8266_HOSTNAME */
 #if defined(MY_IP_ADDRESS)
+#if defined(MY_DNS_ADDRESS)
+	//WiFi.config(_ethernetGatewayIP, _DNSServerIp, _subnetIp);
+	Wifi.config(_ethernetGatewayIP, _gatewayIp, _subnetIp, _DNSServerIp);
+#else
 	WiFi.config(_ethernetGatewayIP, _gatewayIp, _subnetIp);
+#endif /* End of MY_DNS_ADDRESS */
 #endif /* End of MY_IP_ADDRESS */
 #ifndef MY_ESP8266_BSSID
 #define MY_ESP8266_BSSID NULL

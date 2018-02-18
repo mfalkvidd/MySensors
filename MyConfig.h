@@ -1462,6 +1462,14 @@
 //#define MY_IP_SUBNET_ADDRESS 255,255,255,0
 
 /**
+ * @def MY_DNS_ADDRESS
+ * @brief When using static IP address of gateway, use MY_DNS_ADDRESS as DNS server.
+ *
+ * Example: @code #define MY_DNS_ADDRESS 9,9,9,9 @endcode
+ */
+//#define MY_DNS_ADDRESS 9,9,9,9
+
+/**
  * @def MY_USE_UDP
  * @brief Enables UDP mode for Ethernet gateway.
  * @note This is not supported on ENC28J60 and Linux based GWs.
@@ -2179,6 +2187,7 @@
 #define MY_IP_ADDRESS
 #define MY_IP_GATEWAY_ADDRESS
 #define MY_IP_SUBNET_ADDRESS
+#define MY_DNS_ADDRESS
 #define MY_USE_UDP
 #define MY_CONTROLLER_IP_ADDRESS
 #define MY_CONTROLLER_URL_ADDRESS
