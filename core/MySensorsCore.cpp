@@ -358,34 +358,27 @@ bool present(const uint8_t childSensorId, const uint8_t sensorType, const char *
 	                        ack).set(childSensorId==NODE_SENSOR_ID?MYSENSORS_LIBRARY_VERSION:description));
 }
 
+#define _sendSketchInfo(name, version, ack) \
+	bool result = true;\
+	if (name) {\
+		result &= _sendRoute(build(_msgTmp, GATEWAY_ADDRESS, NODE_SENSOR_ID, C_INTERNAL, I_SKETCH_NAME,\
+		                           ack).set(name));\
+	}\
+	if (version) {\
+		result &= _sendRoute(build(_msgTmp, GATEWAY_ADDRESS, NODE_SENSOR_ID, C_INTERNAL, I_SKETCH_VERSION,\
+		                           ack).set(version));\
+	}return result;
+
 bool sendSketchInfo(const char *name, const char *version, const bool ack)
 {
-	bool result = true;
-	if (name) {
-		result &= _sendRoute(build(_msgTmp, GATEWAY_ADDRESS, NODE_SENSOR_ID, C_INTERNAL, I_SKETCH_NAME,
-		                           ack).set(name));
-	}
-	if (version) {
-		result &= _sendRoute(build(_msgTmp, GATEWAY_ADDRESS, NODE_SENSOR_ID, C_INTERNAL, I_SKETCH_VERSION,
-		                           ack).set(version));
-	}
-	return result;
+	_sendSketchInfo(name, version, ack);
 }
 
 #if !defined(__linux__)
 bool sendSketchInfo(const __FlashStringHelper *name, const __FlashStringHelper *version,
                     const bool ack)
 {
-	bool result = true;
-	if (name) {
-		result &= _sendRoute(build(_msgTmp, GATEWAY_ADDRESS, NODE_SENSOR_ID, C_INTERNAL, I_SKETCH_NAME,
-		                           ack).set(name));
-	}
-	if (version) {
-		result &= _sendRoute(build(_msgTmp, GATEWAY_ADDRESS, NODE_SENSOR_ID, C_INTERNAL, I_SKETCH_VERSION,
-		                           ack).set(version));
-	}
-	return result;
+	_sendSketchInfo(name, version, ack);
 }
 #endif
 
