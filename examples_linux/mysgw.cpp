@@ -78,6 +78,12 @@
 //#define MY_INCLUSION_MODE_DURATION 60
 // Digital pin used for inclusion mode button
 //#define MY_INCLUSION_MODE_BUTTON_PIN  3
+#define MY_INDICATION_HANDLER
+static uint32_t txOK = 0;
+static uint32_t txERR = 0;
+#define REPORT_INTERVAL 300000 // Report every 5 minutes
+#define CHILD_ID_TX_OK 1
+#define CHILD_ID_TX_ERR 2
 
 #include <MySensors.h>
 
@@ -85,6 +91,21 @@
 // This space is intended to be used to include arduino libraries
 
 #undef ARDUINO
+MyMessage txOKmsg(CHILD_ID_TX_OK, V_KWH);
+MyMessage txERRmsg(CHILD_ID_TX_ERR, V_KWH);
+
+void indication(indication_t ind)
+{
+  switch (ind)
+  {
+    case INDICATION_TX:
+      txOK++;
+      break;
+    case INDICATION_ERR_TX:
+      txERR++;
+      break;
+  }
+}
 
 void setup()
 {
@@ -94,9 +115,18 @@ void setup()
 void presentation()
 {
 	// Present locally attached sensors here
+  sendSketchInfo(F("RPi NRF24 GW"), F("1.0"));
+  present(CHILD_ID_TX_OK, S_POWER);
+  present(CHILD_ID_TX_ERR, S_POWER);
 }
 
 void loop()
 {
 	// Send locally attached sensors data here
+  static unsigned long last_send = 0;
+  if (millis() - last_send > REPORT_INTERVAL) {
+    send(txOKmsg.set(txOK));
+    send(txERRmsg.set(txERR));
+    last_send = millis();
+  }
 }
